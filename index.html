@@ -40,122 +40,163 @@
 </div>
 
 <script>
-// ===== Safe Tamil Question Bank (using back-ticks) =====
 const bank = [
-  {sentence:`50000 + 300 + 70 + 5 இன் சுருங்கிய வடிவம்.`,chapter:`எண்கள் மற்றும் இடமதிப்பு`,options:[`53750`,`50375`,`53075`,`57305`],answerText:`50375`,explanation:`50000 + 300 + 70 + 5 = 50375.`},
-  {sentence:`826 இன் விரிவாக்க வடிவம்?`,chapter:`எண்கள் மற்றும் இடமதிப்பு`,options:[`800 + 20 + 6`,`820 + 6`,`80 + 26`,`8 + 26`],answerText:`800 + 20 + 6`,explanation:`826 = 800 + 20 + 6.`},
-  {sentence:`45 + 33 = ?`,chapter:`கூட்டல்`,options:[`68`,`78`,`76`,`66`],answerText:`78`,explanation:`45 + 33 = 78.`},
-  {sentence:`26 − 14 = ?`,chapter:`கழித்தல்`,options:[`10`,`12`,`11`,`14`],answerText:`12`,explanation:`26 − 14 = 12.`},
-  {sentence:`8 × 2 = ?`,chapter:`பெருக்கல்`,options:[`16`,`18`,`14`,`10`],answerText:`16`,explanation:`8 × 2 = 16.`},
-  {sentence:`9 × 3 = ?`,chapter:`பெருக்கல்`,options:[`27`,`21`,`24`,`18`],answerText:`27`,explanation:`9 × 3 = 27.`},
-  {sentence:`7ன் வர்க்க எண் எது?`,chapter:`வர்க்க எண்கள்`,options:[`49`,`14`,`7`,`77`],answerText:`49`,explanation:`7 × 7 = 49.`},
-  {sentence:`2 மற்றும் 3 இன் LCM எது?`,chapter:`மீ.சி.ம`,options:[`6`,`5`,`12`,`9`],answerText:`6`,explanation:`LCM of 2 and 3 = 6.`},
-  {sentence:`32 ÷ 4 = ?`,chapter:`வகுத்தல்`,options:[`8`,`6`,`9`,`7`],answerText:`8`,explanation:`32 ÷ 4 = 8.`},
-  {sentence:`1532 ÷ 100 இன் தசம வடிவம்?`,chapter:`தசம எண்கள்`,options:[`1.532`,`15.32`,`153.2`,`1532`],answerText:`15.32`,explanation:`1532 ÷ 100 = 15.32.`}
+  { sentence:"50000 + 300 + 70 + 5 இன் சுருங்கிய வடிவம்.", chapter:"எண்கள் மற்றும் இடமதிப்பு", options:["53750","50375","53075","57305"], answerText:"50375", explanation:"50000+300+70+5 = 50375." },
+  { sentence:"826 இன் விரிவாக்க வடிவம்?", chapter:"எண்கள் மற்றும் இடமதிப்பு", options:["800+20+6","820+6","80+26","8+26"], answerText:"800+20+6", explanation:"826 = 800 + 20 + 6." },
+  { sentence:"மிகச் சிறிய எட்டக்க எண் எது?", chapter:"எண்கள் மற்றும் இடமதிப்பு", options:["10000000","9999999","1000000","11111111"], answerText:"10000000", explanation:"1க்கு பின் 7 பூஜ்ஜியங்கள் = 10000000." }
 ];
 
-// ===== Quiz Logic =====
-let student={},questions=[],currentIndex=0,score=0,timer,timeLeft=60,answers=[];
+let student = {};
+let questions = [];
+let currentIndex = 0;
+let current = null;
+let score = 0;
+let timer = null;
+let timeLeft = 15;
+let answers = [];
 
-function gradeFromPercent(p){if(p>=90)return"A+";if(p>=80)return"A";if(p>=70)return"B";if(p>=60)return"C";if(p>=50)return"D";return"F";}
+function gradeFromPercent(p) {
+  if (p >= 90) return "A+";
+  if (p >= 80) return "A";
+  if (p >= 70) return "B";
+  if (p >= 60) return "C";
+  if (p >= 50) return "D";
+  return "F";
+}
 
-function startQuiz(){
-  student.name=document.getElementById("studentName").value.trim();
-  student.class=document.getElementById("studentClass").value.trim();
-  student.school=document.getElementById("studentSchool").value.trim();
-  student.date=new Date().toLocaleDateString("ta-IN");
-  if(!student.name||!student.class||!student.school){alert("❗ அனைத்து விவரங்களையும் நிரப்பவும்.");return;}
-  questions=bank.sort(()=>0.5-Math.random()).slice(0,10);
-  document.getElementById("infoBox").style.display="none";
-  document.getElementById("quizArea").style.display="block";
-  currentIndex=0;score=0;answers=[];
+function startQuiz() {
+  student.name = document.getElementById("studentName").value.trim();
+  student.class = document.getElementById("studentClass").value.trim();
+  student.school = document.getElementById("studentSchool").value.trim();
+  student.date = document.getElementById("quizDate").value;
+
+  if (!student.name || !student.class || !student.school || !student.date) {
+    alert("❗ அனைத்து விவரங்களையும் நிரப்பவும்.");
+    return;
+  }
+
+  if (bank.length < 10) {
+    alert("Bank has fewer than 10 questions.");
+    return;
+  }
+
+  questions = bank.slice().sort(() => 0.5 - Math.random()).slice(0, 10);
+
+  document.getElementById("infoBox").style.display = "none";
+  document.getElementById("quizArea").style.display = "block";
+
+  score = 0;
+  currentIndex = 0;
+  answers = [];
+
   nextQuestion();
 }
 
-function nextQuestion(){
+function nextQuestion() {
   clearInterval(timer);
-  document.getElementById("feedback").innerHTML="";
-  if(currentIndex>=questions.length){finishQuiz();return;}
-  const q=questions[currentIndex];timeLeft=60;
-  document.getElementById("timer").textContent="⏱️ நேரம்: "+timeLeft;
-  document.getElementById("scoreboard").textContent="மதிப்பெண்: "+score+" / 10";
-  const quiz=document.getElementById("quiz");
-  quiz.innerHTML=`<h3>${currentIndex+1}. ${q.sentence}</h3>
-  <p><b>அலகு:</b> ${q.chapter}</p>
-  ${q.options.map(o=>`<button class='option-btn' onclick="checkAnswer(\`${o}\`)">${o}</button>`).join('')}
-  <p style='font-size:13px;color:#666;'>60 வினாடிகளில் பதிலளிக்கவும்</p>`;
-  timer=setInterval(()=>{
+
+  if (currentIndex >= questions.length) {
+    finishQuiz();
+    return;
+  }
+
+  current = questions[currentIndex];
+  timeLeft = 15;
+
+  document.getElementById("timer").textContent = "⏱️ நேரம்: " + timeLeft;
+  document.getElementById("scoreboard").textContent = "மதிப்பெண்: " + score + " / 10";
+
+  let quiz = document.getElementById("quiz");
+
+  quiz.innerHTML = `
+    <h3>${currentIndex + 1}. ${current.sentence}</h3>
+    <p class="small"><b>அலகு:</b> ${current.chapter}</p>
+    ${current.options
+      .map(o => `<button class="option-btn" onclick="checkAnswer('${o.replace(/'/g, "\\'")}')">${o}</button>`)
+      .join("")}
+    <p class="small">கால வரம்பு: 15 வினாடிகள்</p>
+  `;
+
+  timer = setInterval(() => {
     timeLeft--;
-    document.getElementById("timer").textContent="⏱️ நேரம்: "+timeLeft;
-    if(timeLeft<=0){clearInterval(timer);recordAnswer("நேரம் முடிந்தது",false);showFeedback(false,q);setTimeout(()=>{currentIndex++;nextQuestion();},2000);}
-  },1000);
+    document.getElementById("timer").textContent = "⏱️ நேரம்: " + timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      recordAnswer("நேரம் முடிந்தது", false);
+      alert("⏰ நேரம் முடிந்தது!\nசரியான பதில்: " + current.answerText);
+      currentIndex++;
+      nextQuestion();
+    }
+  }, 1000);
 }
 
-function checkAnswer(opt){
+function checkAnswer(option) {
   clearInterval(timer);
-  const q=questions[currentIndex];
-  const correct=(opt===q.answerText);
-  if(correct)score++;
-  recordAnswer(opt,correct);
-  showFeedback(correct,q);
-  setTimeout(()=>{currentIndex++;nextQuestion();},2000);
+  const correct = option === current.answerText;
+  if (correct) score++;
+  recordAnswer(option, correct);
+
+  if (correct) alert("✅ சரியான பதில்!\nவிளக்கம்: " + current.explanation);
+  else alert("❌ தவறு!\nசரியான பதில்: " + current.answerText + "\nவிளக்கம்: " + current.explanation);
+
+  currentIndex++;
+  nextQuestion();
 }
 
-function recordAnswer(sel,correct){
-  const q=questions[currentIndex];
-  answers.push({question:q.sentence,yourAnswer:sel,correctAnswer:q.answerText,isCorrect:correct});
+function recordAnswer(selected, correct) {
+  answers.push({
+    question: current.sentence,
+    yourAnswer: selected,
+    correctAnswer: current.answerText,
+    isCorrect: correct
+  });
 }
 
-function showFeedback(correct,q){
-  document.getElementById("feedback").innerHTML=
-    correct?`✅ சரியான பதில்!<br><small>${q.explanation}</small>`:
-    `❌ தவறு! சரியான பதில்: ${q.answerText}<br><small>${q.explanation}</small>`;
-}
-
-function finishQuiz(){
+function finishQuiz() {
   clearInterval(timer);
-  const pct=Math.round((score/10)*100),grade=gradeFromPercent(pct);
-  document.getElementById("quiz").innerHTML=`<h2>🎉 தேர்வு முடிந்தது!</h2>
-  <p>மொத்த மதிப்பெண்: ${score}/10</p>
-  <p>சதவீதம்: ${pct}%</p>
-  <p>மதிப்பீடு: ${grade}</p>`;
-  document.getElementById("nextBtn").style.display="none";
-  document.getElementById("downloadBtn").style.display="inline-block";
+
+  let pct = Math.round((score / 10) * 100);
+  let grade = gradeFromPercent(pct);
+
+  document.getElementById("quiz").innerHTML = `
+    <h2>🎉 பரீட்சை முடிந்தது!</h2>
+    <p>மதிப்பெண்: ${score}/10</p>
+    <p>சதவீதம்: ${pct}%</p>
+    <p>மதிப்பீடு: ${grade}</p>
+  `;
+
+  document.getElementById("nextBtn").style.display = "none";
+  document.getElementById("downloadBtn").style.display = "inline-block";
 }
 
-function downloadPDF(){
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-doc.addFont("NotoSansTamil-Black.ttf", "NotoTamil", "normal");
-doc.setFont("NotoTamil");
+  // 🔥 Tamil font loaded
+  doc.addFont("NotoSansTamil-Black.ttf", "TamilFont", "normal");
+  doc.setFont("TamilFont");
 
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:"p",unit:"mm",format:"a4"});
-  doc.setFont("Helvetica");
+  doc.setFontSize(16);
+  doc.text("9ம் வகுப்பு — கணித (10 மதிப்பெண்) முடிவு", 20, 20);
+
+  let y = 35;
   doc.setFontSize(12);
-  let y=15;
-  doc.text("9ம் வகுப்பு கணித (10 மதிப்பெண்) தேர்வு முடிவு",20,y);y+=7;
-  doc.setFontSize(10);
-  doc.text("பெயர்: "+student.name,10,y);y+=5;
-  doc.text("வகுப்பு/பிரிவு: "+student.class,10,y);y+=5;
-  doc.text("பள்ளி: "+student.school,10,y);y+=5;
-  doc.text("தேதி: "+student.date,10,y);y+=8;
 
-  answers.forEach((a,i)=>{
-    if(y>270){doc.addPage();y=15;}
-    doc.text(`${i+1}. ${a.question}`,10,y);y+=6;
-    doc.text(`   உங்கள் பதில்: ${a.yourAnswer}`,12,y);y+=5;
-    doc.text(`   சரியான பதில்: ${a.correctAnswer}`,12,y);y+=5;
-    doc.text(`   நிலை: ${(a.isCorrect?"✅ சரி":"❌ தவறு")}`,12,y);y+=7;
+  doc.text(`பெயர்: ${student.name}`, 10, y); y += 6;
+  doc.text(`வகுப்பு: ${student.class}`, 10, y); y += 6;
+  doc.text(`பள்ளி: ${student.school}`, 10, y); y += 8;
+
+  answers.forEach((a, i) => {
+    if (y > 270) { doc.addPage(); y = 20; }
+
+    doc.text(`${i + 1}. ${a.question}`, 10, y); y += 6;
+    doc.text(`உங்கள் பதில்: ${a.yourAnswer}`, 12, y); y += 5;
+    doc.text(`சரியான பதில்: ${a.correctAnswer}`, 12, y); y += 7;
   });
 
-  const pct=Math.round((score/10)*100);
-  const grade=gradeFromPercent(pct);
-  y+=6;
-  doc.text(`மொத்த மதிப்பெண்: ${score}/10`,10,y);y+=6;
-  doc.text(`சதவீதம்: ${pct}%`,10,y);y+=6;
-  doc.text(`மதிப்பீடு: ${grade}`,10,y);
-  doc.save(`${student.name}_Maths_Quiz_Report.pdf`);
+  doc.save("Tamil_Quiz_Report.pdf");
 }
 </script>
 
