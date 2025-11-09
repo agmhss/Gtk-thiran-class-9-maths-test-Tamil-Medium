@@ -1,269 +1,156 @@
 <!DOCTYPE html>
 <html lang="ta">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>9ம் வகுப்பு — கணித (10 மதிப்பெண்) தேர்வு</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9ம் வகுப்பு — கணித வினா வங்கி (10 மதிப்பெண்)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  body{font-family:"Noto Sans Tamil",sans-serif;background:#f9fafb;padding:20px;color:#222;text-align:center}
-  h1{color:#006699;margin-bottom:10px}
-  .info-box input{padding:8px;margin:5px;border-radius:6px;border:1px solid #aaa;width:80%;max-width:420px}
-  .card{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:18px;margin:auto;max-width:760px;text-align:left}
-  button{background:#0084ff;border:none;color:#fff;padding:10px 16px;margin:10px;border-radius:8px;cursor:pointer;font-size:15px}
-  button:hover{background:#0070d6}
-  .option-btn{display:block;width:100%;margin:8px 0;background:#eef8ff;color:#111;text-align:left;padding:10px;border-radius:6px;border:1px solid #d6f0ff}
-  #scoreboard,#timer{font-size:17px;margin-bottom:6px;color:#333}
-  #feedback{color:#006600;margin-top:10px;font-weight:600}
-  .small{font-size:13px;color:#666}
-  .footer{margin-top:14px;color:#555;font-size:13px}
+  body{font-family:"Noto Sans Tamil",sans-serif;background:#f9fafb;padding:20px;color:#222;text-align:center;}
+  h1{color:#006699;margin-bottom:10px;}
+  .info-box input{padding:8px;margin:5px;border-radius:6px;border:1px solid #aaa;width:80%;max-width:400px;}
+  .card{background:#fff;border-radius:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:20px;margin:auto;max-width:700px;text-align:left;}
+  button{background:#0084ff;border:none;color:#fff;padding:10px 20px;margin:10px;border-radius:8px;cursor:pointer;font-size:16px;}
+  button:hover{background:#006edc;}
+  .option-btn{display:block;width:100%;margin:8px 0;background:#e0f2ff;color:#111;text-align:left;padding:10px;border-radius:6px;border:1px solid #bde0ff;}
+  #scoreboard,#timer{font-size:18px;margin-bottom:8px;color:#333;}
+  #feedback{color:#006600;margin-top:10px;font-weight:bold;}
+  .footer{margin-top:15px;color:#555;font-size:14px;}
 </style>
 </head>
 <body>
 
-<h1>📘 9ம் வகுப்பு — கணித (10 மதிப்பெண்) தேர்வு</h1>
+<h1>📘 9ம் வகுப்பு கணித வினா பரிசோதனை (10 மதிப்பெண்)</h1>
 
 <div class="info-box" id="infoBox">
   <h3>மாணவர் விவரங்கள்</h3>
-  <input id="studentName" type="text" placeholder="பெயர்"><br>
-  <input id="studentClass" type="text" placeholder="வகுப்பு மற்றும் பிரிவு (எ.கா., 9A)"><br>
-  <input id="studentSchool" type="text" placeholder="பள்ளி பெயர்"><br><br>
+  <input type="text" id="studentName" placeholder="பெயர்"><br>
+  <input type="text" id="studentClass" placeholder="வகுப்பு மற்றும் பிரிவு (எ.கா., 9A)"><br>
+  <input type="text" id="studentSchool" placeholder="பள்ளி பெயர்"><br><br>
   <button onclick="startQuiz()">தொடங்கு ➡️</button>
 </div>
 
-<div id="quizArea" style="display:none">
+<div id="quizArea" style="display:none;">
   <div id="scoreboard">மதிப்பெண்: 0 / 10</div>
   <div id="timer">⏱️ நேரம்: 60</div>
   <div id="quiz" class="card"></div>
   <div id="feedback"></div>
-  <div style="text-align:center">
-    <button id="nextBtn" onclick="nextQuestion()">அடுத்த வினா ➡️</button>
-    <button id="downloadBtn" style="display:none" onclick="downloadPDF()">📄 PDF பதிவிறக்க</button>
-    <button id="endBtn" style="display:none" onclick="endEarly()">🛑 முடிக்க</button>
-  </div>
+  <button id="nextBtn" onclick="nextQuestion()">அடுத்த வினா ➡️</button>
+  <button id="downloadBtn" style="display:none;" onclick="downloadPDF()">📄 PDF பதிவிறக்க</button>
 </div>
 
 <script>
-// ====================== Question Bank (≈60 questions) ======================
+// ===== Safe Tamil Question Bank (using back-ticks) =====
 const bank = [
-  // Term 1 - Number systems & arithmetic
-  { sentence: "50000 + 300 + 70 + 5 இன் சுருங்கிய வடிவம்.", chapter: "எண்கள் மற்றும் இடமதிப்பு", options: ["53750","50375","53075","57305"], answerText: "50375", explanation: "50000+300+70+5 = 50375." },
-  { sentence: "826 இன் விரிவாக்க வடிவம்?", chapter: "எண்கள் மற்றும் இடமதிப்பு", options: ["800 + 20 + 6","820 + 6","80 + 26","8 + 26"], answerText: "800 + 20 + 6", explanation: "826 = 800 + 20 + 6." },
-  { sentence: "மிகச் சிறிய எட்டக் கடைசி எண் எது?", chapter: "எண்கள் மற்றும் இடமதிப்பு", options: ["10000000","9999999","1000000","11111111"], answerText: "10000000", explanation: "1 followed by 7 zeros." },
-
-  { sentence: "35 மற்றும் 28 இவற்றில் பெரிய எண் எது?", chapter: "எண்களை ஒப்பிடுதல்", options: ["28","35","25","38"], answerText: "35", explanation: "35 > 28." },
-  { sentence: "99999 மற்றும் 100001 இவற்றுக்கிடை எண் எது?", chapter: "எண்களை ஒப்பிடுதல்", options: ["100000","99998","100002","100001"], answerText: "100000", explanation: "100000 lies between them." },
-
-  { sentence: "45 + 33 = ?", chapter: "கூட்டல்", options: ["68","78","76","66"], answerText: "78", explanation: "45 + 33 = 78." },
-  { sentence: "233 + 125 = ?", chapter: "கூட்டல்", options: ["358","348","363","354"], answerText: "358", explanation: "233 + 125 = 358." },
-
-  { sentence: "26 − 14 = ?", chapter: "கழித்தல்", options: ["10","12","11","14"], answerText: "12", explanation: "26 − 14 = 12." },
-  { sentence: "374 − 122 = ?", chapter: "கழித்தல்", options: ["252","254","251","253"], answerText: "252", explanation: "374 − 122 = 252." },
-
-  { sentence: "8 × 2 = ?", chapter: "பெருக்கல்", options: ["16","18","14","10"], answerText: "16", explanation: "8 × 2 = 16." },
-  { sentence: "48 × 15 = ?", chapter: "பெருக்கல்", options: ["720","820","620","7120"], answerText: "720", explanation: "48 × 15 = 720." },
-  { sentence: "25 × 15 = ?", chapter: "பெருக்கல்", options: ["375","325","350","400"], answerText: "375", explanation: "25 × 15 = 375." },
-  { sentence: "78 × 57 = ?", chapter: "பெருக்கல்", options: ["4446","4450","4420","4470"], answerText: "4446", explanation: "78 × 57 = 4446." },
-
-  { sentence: "7ன் வர்க்க எண் எது?", chapter: "வர்க்க எண்கள்", options: ["49","14","7","77"], answerText: "49", explanation: "7 × 7 = 49." },
-  { sentence: "64 என்பது எந்த எண்ணின் வர்க்கம்?", chapter: "வர்க்க எண்கள்", options: ["6","7","8","9"], answerText: "8", explanation: "8 × 8 = 64." },
-  { sentence: "81 என்பது எந்த எண்ணின் வர்க்கம்?", chapter: "வர்க்க எண்கள்", options: ["8","9","10","7"], answerText: "9", explanation: "9 × 9 = 81." },
-
-  { sentence: "2 மற்றும் 3 இன் LCM எது?", chapter: "LCM/HCF", options: ["6","5","12","9"], answerText: "6", explanation: "LCM(2,3) = 6." },
-  { sentence: "20 மற்றும் 28 இன் HCF எது?", chapter: "LCM/HCF", options: ["4","2","8","6"], answerText: "4", explanation: "HCF(20,28) = 4." },
-
-  { sentence: "32 ÷ 4 = ?", chapter: "வகுத்தல்", options: ["8","6","9","7"], answerText: "8", explanation: "32 ÷ 4 = 8." },
-  { sentence: "975 ÷ 25 = ?", chapter: "வகுத்தல்", options: ["39","37","40","41"], answerText: "39", explanation: "975 ÷ 25 = 39." },
-
-  { sentence: "15/25 இன் சுருங்கிய வடிவம் என்ன?", chapter: "பின்ன எண்கள்", options: ["3/5","5/3","1/5","15/25"], answerText: "3/5", explanation: "Divide numerator and denominator by 5." },
-  { sentence: "(1/2) × (7/3) = ?", chapter: "பின்ன எண்கள்", options: ["7/6","2/5","3/14","14/3"], answerText: "7/6", explanation: "(1×7)/(2×3) = 7/6." },
-  { sentence: "7/2 இன் தசம வடிவம்?", chapter: "பின்ன எண்கள்", options: ["3.5","1.75","2.5","3.25"], answerText: "3.5", explanation: "7 ÷ 2 = 3.5." },
-
-  { sentence: "1532 ÷ 100 இன் தசம வடிவம்?", chapter: "தசம எண்கள்", options: ["15.32","1.532","153.2","1532"], answerText: "15.32", explanation: "1532 ÷ 100 = 15.32." },
-  { sentence: "12/10 இன் தசம வடிவம்?", chapter: "தசம எண்கள்", options: ["1.2","12.0","0.12","10.12"], answerText: "1.2", explanation: "12 ÷ 10 = 1.2." },
-
-  { sentence: "1000 மி.மீ = ? மீ", chapter: "அளவுகள்", options: ["1 மீ","10 மீ","0.1 மீ","100 மீ"], answerText: "1 மீ", explanation: "1000 mm = 1 m." },
-  { sentence: "5000 மீ = ? கி.மீ", chapter: "அளவுகள்", options: ["5 கி.மீ","50 கி.மீ","0.5 கி.மீ","500 கி.மீ"], answerText: "5 கி.மீ", explanation: "1000 m = 1 km." },
-  { sentence: "1750 மில்லி = ? லிட்டர்", chapter: "அளவுகள்", options: ["1.5 லி","1.25 லி","1.75 லி","2 லி"], answerText: "1.75 லி", explanation: "1750 ml = 1.75 L." },
-
-  // Term 2 - Algebra & Mensuration
-  { sentence: "2x + 3x = ?", chapter: "ஆல்ஜீப்ரா", options: ["5x","6x","x^2","x^5"], answerText: "5x", explanation: "2x + 3x = 5x." },
-  { sentence: "x = 4 ஆகில் 3x + 2 =", chapter: "ஆல்ஜீப்ரா", options: ["14","12","10","16"], answerText: "14", explanation: "3(4)+2=14." },
-  { sentence: "x^2 + 17x + 72 இன் காரணிகள்?", chapter: "ஆல்ஜீப்ரா", options: ["(x+9)(x+8)","(x−9)(x+8)","(x+9)(x−8)","(x−9)(x−8)"], answerText: "(x+9)(x+8)", explanation: "9+8=17 and 9×8=72." },
-
-  { sentence: "மூன்று கோணங்களின் உள்ளக கூட்டுத்தொகை?", chapter: "முக்கோணம்", options: ["180°","90°","270°","360°"], answerText: "180°", explanation: "Sum of triangle angles = 180°." },
-  { sentence: "a=3, b=4 இல் c (Pythagoras) ?", chapter: "பைதகோரஸ்", options: ["5","6","7","4"], answerText: "5", explanation: "√(3^2+4^2)=5." },
-
-  { sentence: "ஒரு சதுரத்தின் பக்கம் 12 cm என்றால் பரப்பளவு?", chapter: "பரப்பளவு", options: ["144 cm²","120 cm²","100 cm²","150 cm²"], answerText: "144 cm²", explanation: "12 × 12 = 144." },
-  { sentence: "length 10 cm, breadth 7 cm வட்டத்தின் சுற்றளவு?", chapter: "நிலவியல்", options: ["34 cm","30 cm","32 cm","28 cm"], answerText: "34 cm", explanation: "Perimeter = 2(l+b) = 34." },
-  { sentence: "circle radius 7 cm area (π=22/7)?", chapter: "வட்டம்", options: ["154 cm²","140 cm²","616 cm²","308 cm²"], answerText: "154 cm²", explanation: "πr² = 22/7×7×7 = 154." },
-
-  { sentence: "10 cm × 5 cm சதுரத்தின் பரப்பளவு?", chapter: "பரப்பளவு", options: ["50 cm²","40 cm²","100 cm²","25 cm²"], answerText: "50 cm²", explanation: "10×5=50." },
-  { sentence: "box l=10 b=5 h=4 பருமன்?", chapter: "பருமன்", options: ["200 cm³","150 cm³","300 cm³","250 cm³"], answerText: "200 cm³", explanation: "l×b×h=10×5×4=200." },
-
-  // Term 3 - Data handling & advanced
-  { sentence: "Data: 2,4,4,5,5,5,6,6,7 மோட் எது?", chapter: "புள்ளிவிபரம்", options: ["5","6","4","7"], answerText: "5", explanation: "5 occurs most." },
-  { sentence: "Mean of numbers sum 45 count 9?", chapter: "புள்ளிவிபரம்", options: ["5","6","4","7"], answerText: "5", explanation: "Mean = 45/9 = 5." },
-
-  { sentence: "121 எந்த எண் மூலம் வகுபடும்?", chapter: "வகுபடும் தன்மை", options: ["11","5","7","9"], answerText: "11", explanation: "121 = 11×11." },
-  { sentence: "48 ÷ 6 = ?", chapter: "வகுத்தல்", options: ["8","6","7","9"], answerText: "8", explanation: "48 ÷ 6 = 8." },
-
-  { sentence: "3/4 + 1/4 = ?", chapter: "பின்ன எண்கள்", options: ["1","3/4","1/2","2"], answerText: "1", explanation: "Fractions add to 1." },
-  { sentence: "0.25 = ?", chapter: "தசம எண்கள்", options: ["1/4","25/100","2/5","3/10"], answerText: "1/4", explanation: "0.25 = 1/4." },
-
-  { sentence: "Prime number among: 27,23,34,41,53?", chapter: "எண் அலமப்பு", options: ["23","27","34","41"], answerText: "23", explanation: "23 is prime." },
-  { sentence: "Composite number among: 33,46,59,64,71?", chapter: "எண் அலமப்பு", options: ["33","59","46","64"], answerText: "33", explanation: "33 = 3×11." },
-
-  { sentence: "x−9=3 எனில் x?", chapter: "சமன்பாடு", options: ["12","9","6","3"], answerText: "12", explanation: "x = 3+9 =12." },
-  { sentence: "2x=10 => x=?", chapter: "சமன்பாடு", options: ["5","4","6","3"], answerText: "5", explanation: "10/2=5." },
-
-  { sentence: "sin²θ + cos²θ = ?", chapter: "கோணமிதி", options: ["1","0","2","tanθ"], answerText: "1", explanation: "Identity." },
-  { sentence: "tanθ = ?", chapter: "கோணமிதி", options: ["sinθ/cosθ","cosθ/sinθ","1/cosθ","1/sinθ"], answerText: "sinθ/cosθ", explanation: "tan=sin/cos." },
-
-  { sentence: "(4x−3y)² என்ன?", chapter: "ஆல்ஜீப்ரா", options: ["16x²−24xy+9y²","16x²+24xy+9y²","16x²−24xy−9y²","16x²+24xy−9y²"], answerText: "16x²−24xy+9y²", explanation: "Expand square." },
-  { sentence: "If x=2 then x²+3x+1 = ?", chapter: "ஆல்ஜீப்ரா", options: ["11","9","10","12"], answerText: "11", explanation: "4+6+1=11." },
-
-  { sentence: "Which is even: 24,35,48,41,60?", chapter: "வகுபடும் தன்மை", options: ["48","35","41","24"], answerText: "48", explanation: "Even numbers end with even digit." },
-  { sentence: "Is 81 a perfect square?", chapter: "வர்க்க எண்கள்", options: ["Yes","No","Sometimes","Unknown"], answerText: "Yes", explanation: "9×9=81." },
-
-  { sentence: "Find LCM(9,12)?", chapter: "LCM/HCF", options: ["36","24","48","18"], answerText: "36", explanation: "LCM = 36." },
-  { sentence: "HCF of 15 and 25?", chapter: "LCM/HCF", options: ["5","10","15","25"], answerText: "5", explanation: "GCD=5." },
-
-  { sentence: "Convert 1532/100 to decimal?", chapter: "தசம எண்கள்", options: ["15.32","1.532","153.2","1532"], answerText: "15.32", explanation: "1532/100 = 15.32." },
-  { sentence: "A number 1000 ml equals?", chapter: "அளவுகள்", options: ["1 L","100 L","0.1 L","10 L"], answerText: "1 L", explanation: "1000 ml = 1 L." }
+  {sentence:`50000 + 300 + 70 + 5 இன் சுருங்கிய வடிவம்.`,chapter:`எண்கள் மற்றும் இடமதிப்பு`,options:[`53750`,`50375`,`53075`,`57305`],answerText:`50375`,explanation:`50000 + 300 + 70 + 5 = 50375.`},
+  {sentence:`826 இன் விரிவாக்க வடிவம்?`,chapter:`எண்கள் மற்றும் இடமதிப்பு`,options:[`800 + 20 + 6`,`820 + 6`,`80 + 26`,`8 + 26`],answerText:`800 + 20 + 6`,explanation:`826 = 800 + 20 + 6.`},
+  {sentence:`45 + 33 = ?`,chapter:`கூட்டல்`,options:[`68`,`78`,`76`,`66`],answerText:`78`,explanation:`45 + 33 = 78.`},
+  {sentence:`26 − 14 = ?`,chapter:`கழித்தல்`,options:[`10`,`12`,`11`,`14`],answerText:`12`,explanation:`26 − 14 = 12.`},
+  {sentence:`8 × 2 = ?`,chapter:`பெருக்கல்`,options:[`16`,`18`,`14`,`10`],answerText:`16`,explanation:`8 × 2 = 16.`},
+  {sentence:`9 × 3 = ?`,chapter:`பெருக்கல்`,options:[`27`,`21`,`24`,`18`],answerText:`27`,explanation:`9 × 3 = 27.`},
+  {sentence:`7ன் வர்க்க எண் எது?`,chapter:`வர்க்க எண்கள்`,options:[`49`,`14`,`7`,`77`],answerText:`49`,explanation:`7 × 7 = 49.`},
+  {sentence:`2 மற்றும் 3 இன் LCM எது?`,chapter:`மீ.சி.ம`,options:[`6`,`5`,`12`,`9`],answerText:`6`,explanation:`LCM of 2 and 3 = 6.`},
+  {sentence:`32 ÷ 4 = ?`,chapter:`வகுத்தல்`,options:[`8`,`6`,`9`,`7`],answerText:`8`,explanation:`32 ÷ 4 = 8.`},
+  {sentence:`1532 ÷ 100 இன் தசம வடிவம்?`,chapter:`தசம எண்கள்`,options:[`1.532`,`15.32`,`153.2`,`1532`],answerText:`15.32`,explanation:`1532 ÷ 100 = 15.32.`}
 ];
-// total ~60 questions
 
-// ====================== Quiz Logic (60s per question) ======================
-let student = {};
-let questions = [];
-let currentIndex = 0;
-let score = 0;
-let timer = null;
-let timeLeft = 60;
-let answers = [];
+// ===== Quiz Logic =====
+let student={},questions=[],currentIndex=0,score=0,timer,timeLeft=60,answers=[];
 
-function gradeFromPercent(p){ if(p>=90) return "A+"; if(p>=80) return "A"; if(p>=70) return "B"; if(p>=60) return "C"; if(p>=50) return "D"; return "F"; }
+function gradeFromPercent(p){if(p>=90)return"A+";if(p>=80)return"A";if(p>=70)return"B";if(p>=60)return"C";if(p>=50)return"D";return"F";}
 
 function startQuiz(){
-  student.name = document.getElementById("studentName").value.trim();
-  student.class = document.getElementById("studentClass").value.trim();
-  student.school = document.getElementById("studentSchool").value.trim();
-  student.date = new Date().toLocaleDateString("ta-IN");
-  if(!student.name || !student.class || !student.school){
-    alert("❗ தயவுசெய்து அனைத்து விவரங்களையும் நிரப்பவும்."); return;
-  }
-  if(bank.length < 10){ alert("Question bank has fewer than 10 questions."); return; }
-  // pick 10 random distinct questions
-  questions = bank.slice().sort(()=>0.5 - Math.random()).slice(0,10);
-  document.getElementById("infoBox").style.display = "none";
-  document.getElementById("quizArea").style.display = "block";
-  currentIndex = 0; score = 0; answers = [];
-  document.getElementById("downloadBtn").style.display = "none";
-  document.getElementById("nextBtn").style.display = "inline-block";
-  document.getElementById("endBtn").style.display = "inline-block";
+  student.name=document.getElementById("studentName").value.trim();
+  student.class=document.getElementById("studentClass").value.trim();
+  student.school=document.getElementById("studentSchool").value.trim();
+  student.date=new Date().toLocaleDateString("ta-IN");
+  if(!student.name||!student.class||!student.school){alert("❗ அனைத்து விவரங்களையும் நிரப்பவும்.");return;}
+  questions=bank.sort(()=>0.5-Math.random()).slice(0,10);
+  document.getElementById("infoBox").style.display="none";
+  document.getElementById("quizArea").style.display="block";
+  currentIndex=0;score=0;answers=[];
   nextQuestion();
 }
 
 function nextQuestion(){
   clearInterval(timer);
-  document.getElementById("feedback").innerHTML = "";
-  if(currentIndex >= questions.length){ finishQuiz(); return; }
-  const q = questions[currentIndex];
-  timeLeft = 60;
-  document.getElementById("timer").textContent = "⏱️ நேரம்: " + timeLeft;
-  document.getElementById("scoreboard").textContent = "மதிப்பெண்: " + score + " / 10";
-  const quiz = document.getElementById("quiz");
-  // render options safely
-  quiz.innerHTML = `<h3>${currentIndex+1}. ${q.sentence}</h3>
-    <p class="small"><b>அலகு:</b> ${q.chapter}</p>
-    ${q.options.map(o => `<button class="option-btn" onclick="checkAnswer('${o.replace(/'/g,\"\\\\'\")}')">${o}</button>`).join('')}
-    <p class="small">கால வரம்பு: 60 வினாடிகள்</p>`;
-  timer = setInterval(()=>{
+  document.getElementById("feedback").innerHTML="";
+  if(currentIndex>=questions.length){finishQuiz();return;}
+  const q=questions[currentIndex];timeLeft=60;
+  document.getElementById("timer").textContent="⏱️ நேரம்: "+timeLeft;
+  document.getElementById("scoreboard").textContent="மதிப்பெண்: "+score+" / 10";
+  const quiz=document.getElementById("quiz");
+  quiz.innerHTML=`<h3>${currentIndex+1}. ${q.sentence}</h3>
+  <p><b>அலகு:</b> ${q.chapter}</p>
+  ${q.options.map(o=>`<button class='option-btn' onclick="checkAnswer(\`${o}\`)">${o}</button>`).join('')}
+  <p style='font-size:13px;color:#666;'>60 வினாடிகளில் பதிலளிக்கவும்</p>`;
+  timer=setInterval(()=>{
     timeLeft--;
-    document.getElementById("timer").textContent = "⏱️ நேரம்: " + timeLeft;
-    if(timeLeft <= 0){
-      clearInterval(timer);
-      recordAnswer("நேரம் முடிந்தது", false);
-      // show feedback in-page and move on after short pause
-      showFeedback(false, q);
-      setTimeout(()=>{ currentIndex++; nextQuestion(); }, 2000);
-    }
-  }, 1000);
+    document.getElementById("timer").textContent="⏱️ நேரம்: "+timeLeft;
+    if(timeLeft<=0){clearInterval(timer);recordAnswer("நேரம் முடிந்தது",false);showFeedback(false,q);setTimeout(()=>{currentIndex++;nextQuestion();},2000);}
+  },1000);
 }
 
-function checkAnswer(option){
+function checkAnswer(opt){
   clearInterval(timer);
-  const q = questions[currentIndex];
-  const wasCorrect = (option === q.answerText);
-  if(wasCorrect) score++;
-  recordAnswer(option, wasCorrect);
-  showFeedback(wasCorrect, q);
-  setTimeout(()=>{ currentIndex++; nextQuestion(); }, 2000);
+  const q=questions[currentIndex];
+  const correct=(opt===q.answerText);
+  if(correct)score++;
+  recordAnswer(opt,correct);
+  showFeedback(correct,q);
+  setTimeout(()=>{currentIndex++;nextQuestion();},2000);
 }
 
-function recordAnswer(selected, correct){
-  const q = questions[currentIndex];
-  answers.push({ question: q.sentence, yourAnswer: selected, correctAnswer: q.answerText, isCorrect: correct });
+function recordAnswer(sel,correct){
+  const q=questions[currentIndex];
+  answers.push({question:q.sentence,yourAnswer:sel,correctAnswer:q.answerText,isCorrect:correct});
 }
 
-function showFeedback(correct, q){
-  const fb = document.getElementById("feedback");
-  if(correct){
-    fb.innerHTML = `✅ சரியான பதில்!<br><small>${q.explanation}</small>`;
-  } else {
-    fb.innerHTML = `❌ தவறு. சரியான பதில்: ${q.answerText}<br><small>${q.explanation}</small>`;
-  }
+function showFeedback(correct,q){
+  document.getElementById("feedback").innerHTML=
+    correct?`✅ சரியான பதில்!<br><small>${q.explanation}</small>`:
+    `❌ தவறு! சரியான பதில்: ${q.answerText}<br><small>${q.explanation}</small>`;
 }
 
 function finishQuiz(){
   clearInterval(timer);
-  const pct = Math.round((score / 10) * 100);
-  const grade = gradeFromPercent(pct);
-  document.getElementById("quiz").innerHTML = `<h2>🎉 தேர்வு முடிந்தது!</h2>
-    <p>மொத்த மதிப்பெண்: ${score} / 10</p>
-    <p>சதவீதம்: ${pct}%</p>
-    <p>மதிப்பீடு: ${grade}</p>`;
-  document.getElementById("nextBtn").style.display = "none";
-  document.getElementById("endBtn").style.display = "none";
-  document.getElementById("downloadBtn").style.display = "inline-block";
-  document.getElementById("scoreboard").textContent = "மதிப்பெண்: " + score + " / 10";
+  const pct=Math.round((score/10)*100),grade=gradeFromPercent(pct);
+  document.getElementById("quiz").innerHTML=`<h2>🎉 தேர்வு முடிந்தது!</h2>
+  <p>மொத்த மதிப்பெண்: ${score}/10</p>
+  <p>சதவீதம்: ${pct}%</p>
+  <p>மதிப்பீடு: ${grade}</p>`;
+  document.getElementById("nextBtn").style.display="none";
+  document.getElementById("downloadBtn").style.display="inline-block";
 }
 
-function endEarly(){
-  if(confirm("தேர்வை தற்போது நிறுத்தவா?")) finishQuiz();
-}
-
-// PDF generation (UTF-8 text). If Tamil fails on some devices, I can embed a Tamil font next.
 function downloadPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:"p",unit:"mm",format:"a4"});
   doc.setFont("Helvetica");
   doc.setFontSize(14);
-  let y = 15;
-  doc.text("9ம் வகுப்பு — கணித (10 மதிப்பெண்) தேர்வு முடிவு", 20, y); y += 8;
+  let y=15;
+  doc.text("9ம் வகுப்பு கணித (10 மதிப்பெண்) தேர்வு முடிவு",20,y);y+=8;
   doc.setFontSize(11);
-  doc.text("பெயர்: " + student.name, 10, y); y += 6;
-  doc.text("வகுப்பு/பிரிவு: " + student.class, 10, y); y += 6;
-  doc.text("பள்ளி: " + student.school, 10, y); y += 6;
-  doc.text("தேதி: " + student.date, 10, y); y += 8;
+  doc.text("பெயர்: "+student.name,10,y);y+=6;
+  doc.text("வகுப்பு/பிரிவு: "+student.class,10,y);y+=6;
+  doc.text("பள்ளி: "+student.school,10,y);y+=6;
+  doc.text("தேதி: "+student.date,10,y);y+=10;
 
-  answers.forEach((a,i) => {
-    if(y > 270){ doc.addPage(); y = 15; }
-    doc.text((i+1) + ". " + a.question, 10, y); y += 6;
-    doc.text("   உங்கள் பதில்: " + a.yourAnswer, 12, y); y += 5;
-    doc.text("   சரியான பதில்: " + a.correctAnswer, 12, y); y += 5;
-    doc.text("   நிலை: " + (a.isCorrect ? "✅ சரி" : "❌ தவறு"), 12, y); y += 7;
+  answers.forEach((a,i)=>{
+    if(y>270){doc.addPage();y=15;}
+    doc.text(`${i+1}. ${a.question}`,10,y);y+=6;
+    doc.text(`   உங்கள் பதில்: ${a.yourAnswer}`,12,y);y+=5;
+    doc.text(`   சரியான பதில்: ${a.correctAnswer}`,12,y);y+=5;
+    doc.text(`   நிலை: ${(a.isCorrect?"✅ சரி":"❌ தவறு")}`,12,y);y+=7;
   });
 
-  const pct = Math.round((score / 10) * 100);
-  const grade = gradeFromPercent(pct);
-  y += 4;
-  doc.text("மொத்த மதிப்பெண்: " + score + " / 10", 10, y); y += 6;
-  doc.text("சதவீதம்: " + pct + "%", 10, y); y += 6;
-  doc.text("மதிப்பீடு: " + grade, 10, y);
-
-  doc.save((student.name || "student") + "_Maths_10mark_Report.pdf");
+  const pct=Math.round((score/10)*100);
+  const grade=gradeFromPercent(pct);
+  y+=6;
+  doc.text(`மொத்த மதிப்பெண்: ${score}/10`,10,y);y+=6;
+  doc.text(`சதவீதம்: ${pct}%`,10,y);y+=6;
+  doc.text(`மதிப்பீடு: ${grade}`,10,y);
+  doc.save(`${student.name}_Maths_Quiz_Report.pdf`);
 }
 </script>
 
