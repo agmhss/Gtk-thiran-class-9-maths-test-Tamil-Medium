@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="ta">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>9ம் வகுப்பு — கணித வினா வங்கி (10 மதிப்பெண்)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
   body{font-family:"Noto Sans Tamil",sans-serif;background:#f9fafb;padding:20px;color:#222;text-align:center;}
   h1{color:#006699;margin-bottom:10px;}
@@ -17,9 +16,9 @@
   #scoreboard,#timer{font-size:18px;margin-bottom:8px;color:#333;}
   #feedback{color:#006600;margin-top:10px;font-weight:bold;}
   .footer{margin-top:15px;color:#555;font-size:14px;}
+  .small{color:#555;font-size:13px;}
 </style>
 </head>
-
 <body>
 
 <h1>📘 9ம் வகுப்பு கணித தேர்வு (10 மதிப்பெண்)</h1>
@@ -30,35 +29,89 @@
   <input type="text" id="studentName" placeholder="பெயர்"><br>
   <input type="text" id="studentClass" placeholder="வகுப்பு மற்றும் பிரிவு (எ.கா., 9A)"><br>
   <input type="text" id="studentSchool" placeholder="பள்ளி பெயர்"><br>
-
-  <!-- ⭐ FIXED: DATE FIELD ADDED ⭐ -->
+  <!-- REQUIRED: keeps start from failing -->
   <input type="date" id="quizDate"><br><br>
-
-  <button onclick="startQuiz()">தொடங்கு ➡️</button>
+  <button id="startBtn" onclick="startQuiz()">தொடங்கு ➡️</button>
 </div>
 
 <!-- QUIZ AREA -->
 <div id="quizArea" style="display:none;">
   <div id="scoreboard">மதிப்பெண்: 0 / 10</div>
   <div id="timer">⏱️ நேரம்: 60</div>
-
   <div id="quiz" class="card"></div>
   <div id="feedback"></div>
-
-  <button id="nextBtn" onclick="nextQuestion()">அடுத்த வினா ➡️</button>
-  <button id="downloadBtn" style="display:none;" onclick="downloadPDF()">📄 PDF பதிவிறக்க</button>
+  <div style="margin-top:8px;">
+    <button id="nextBtn" onclick="nextQuestion()">அடுத்த வினா ➡️</button>
+    <button id="downloadBtn" style="display:none;" onclick="downloadPDF()">📄 PDF பதிவிறக்க</button>
+  </div>
 </div>
 
 <script>
-// ================== QUESTION BANK ==================
+/* ====== FULL QUESTION BANK (Tamil) ====== */
 const bank = [
   { sentence:"50000 + 300 + 70 + 5 இன் சுருங்கிய வடிவம்.", chapter:"எண்கள் மற்றும் இடமதிப்பு", options:["53750","50375","53075","57305"], answerText:"50375", explanation:"50000+300+70+5 = 50375." },
   { sentence:"826 இன் விரிவாக்க வடிவம்?", chapter:"எண்கள் மற்றும் இடமதிப்பு", options:["800+20+6","820+6","80+26","8+26"], answerText:"800+20+6", explanation:"826 = 800 + 20 + 6." },
   { sentence:"மிகச் சிறிய எட்டக்க எண் எது?", chapter:"எண்கள் மற்றும் இடமதிப்பு", options:["10000000","9999999","1000000","11111111"], answerText:"10000000", explanation:"1க்கு பின் 7 பூஜ்ஜியங்கள் = 10000000." },
+
   { sentence:"35 மற்றும் 28 இவற்றில் பெரிய எண் எது?", chapter:"எண்களை ஒப்பிடுதல்", options:["28","35","25","38"], answerText:"35", explanation:"35 > 28" },
-  { sentence:"6735, 4378, 6753, 4387 இவற்றில் மிகப்பெரிய எண் எது?", chapter:"எண்களை ஒப்பிடுதல்", options:["6753","6735","4387","4378"], answerText:"6753", explanation:"6753 is greatest." }
-  // (trimmed for message limit — rest can stay same)
+  { sentence:"6735, 4378, 6753, 4387 இவற்றில் மிகப்பெரிய எண் எது?", chapter:"எண்களை ஒப்பிடுதல்", options:["6753","6735","4387","4378"], answerText:"6753", explanation:"6753 is greatest." },
+
+  { sentence:"45 + 33 = ?", chapter:"கூட்டல்", options:["68","78","76","66"], answerText:"78", explanation:"45 + 33 = 78." },
+  { sentence:"233 + 125 = ?", chapter:"கூட்டல்", options:["358","348","363","354"], answerText:"358", explanation:"233+125=358" },
+
+  { sentence:"26 − 14 = ?", chapter:"கழித்தல்", options:["10","12","11","14"], answerText:"12", explanation:"26 − 14 = 12." },
+  { sentence:"374 − 122 = ?", chapter:"கழித்தல்", options:["252","254","251","253"], answerText:"252", explanation:"374−122=252" },
+
+  { sentence:"8 × 2 = ?", chapter:"பெருக்கல்", options:["16","18","14","10"], answerText:"16", explanation:"8×2=16" },
+  { sentence:"78 × 57 = ?", chapter:"பெருக்கல்", options:["4446","4450","4420","4470"], answerText:"4446", explanation:"78×57=4446" },
+
+  { sentence:"7ன் வர்க்க எண் எது?", chapter:"வர்க்க எண்கள்", options:["49","14","7","77"], answerText:"49", explanation:"7×7=49" },
+  { sentence:"64 என்பது எந்த எண்ணின் வர்க்கம்?", chapter:"வர்க்க எண்கள்", options:["6","7","8","9"], answerText:"8", explanation:"8×8=64" },
+
+  { sentence:"2 மற்றும் 3 இன் LCM எது?", chapter:"LCM/HCF", options:["6","5","12","9"], answerText:"6", explanation:"LCM(2,3)=6" },
+  { sentence:"15 மற்றும் 25 இன் HCF எது?", chapter:"LCM/HCF", options:["5","10","15","20"], answerText:"5", explanation:"HCF=5" },
+
+  { sentence:"32 ÷ 4 = ?", chapter:"வகுத்தல்", options:["8","6","9","7"], answerText:"8", explanation:"32÷4=8" },
+  { sentence:"975 ÷ 25 = ?", chapter:"வகுத்தல்", options:["39","37","40","41"], answerText:"39", explanation:"975÷25=39" },
+
+  { sentence:"(1/2) × (7/3) = ?", chapter:"பின்ன எண்கள்", options:["13/27","7/6","1/14","3/14"], answerText:"7/6", explanation:"(1×7)/(2×3)=7/6" },
+  { sentence:"7/2 இன் தசம வடிவம்?", chapter:"பின்ன எண்கள்", options:["3.5","1.75","2.5","3.25"], answerText:"3.5", explanation:"7÷2=3.5" },
+
+  { sentence:"1532 ÷ 100 இன் தசம வடிவம்?", chapter:"தசம எண்கள்", options:["1.532","15.32","153.2","1532"], answerText:"15.32", explanation:"1532/100=15.32" },
+  { sentence:"1750 மில்லி = ? லிட்டர்", chapter:"அளவுகள்", options:["1 1/2 லி","1 1/4 லி","1 3/4 லி","2 லி"], answerText:"1 3/4 லி", explanation:"1750 ml = 1.75 L = 1 3/4 L" },
+
+  { sentence:"10 செ.மீ × 7 செ.மீ ஆன சதுரத்தின் சுற்றளவு?", chapter:"நிலவியல்", options:["34 செ.மீ","30 செ.மீ","32 செ.மீ","28 செ.மீ"], answerText:"34 செ.மீ", explanation:"2(l+b)=2(10+7)=34" },
+  { sentence:"10 செ.மீ × 5 செ.மீ ஆன சதுரத்தின் பரப்பளவு?", chapter:"பரப்பளவு", options:["50 செ.மீ²","25","40","60"], answerText:"50 செ.மீ²", explanation:"Area=10×5=50" },
+
+  { sentence:"மொத்தம் 45, எண்ணிக்கை 9 என்றால் மீன்?", chapter:"புள்ளியியல்", options:["5","6","4","7"], answerText:"5", explanation:"45/9=5" },
+  { sentence:"2,4,4,5,5,5,6,6,7 இன் மோட் எது?", chapter:"புள்ளியியல்", options:["5","6","4","7"], answerText:"5", explanation:"5 அதிகம்தோன்றும்" },
+
+  { sentence:"முகப்புக்களின் (triangle) உள்ளக கோணங்களின் கூட்டுத்தொகை?", chapter:"முக்கோணம்", options:["180°","90°","270°","360°"], answerText:"180°", explanation:"Triangle sum=180°" },
+  { sentence:"3 மற்றும் 4 உடைய பைதகோரஸ் நிலை c = ?", chapter:"பைதகோரஸ்", options:["5","4","6","7"], answerText:"5", explanation:"√(3²+4²)=5" },
+
+  { sentence:"121 எந்த எண்ணால் வகுபடும்?", chapter:"வகுபடும் தன்மை", options:["5","7","9","11"], answerText:"11", explanation:"121=11×11" },
+  { sentence:"(−15) × 7 = ?", chapter:"முழு எண்கள்", options:["105","−105","−8","8"], answerText:"−105", explanation:"Negative×positive=negative" },
+
+  { sentence:"48 × 15 = ?", chapter:"பெருக்கல்", options:["720","820","620","7120"], answerText:"720", explanation:"48×15=720" },
+  { sentence:"25 × 15 = ?", chapter:"பெருக்கல்", options:["375","325","350","400"], answerText:"375", explanation:"25×15=375" },
+
+  { sentence:"அரை வட்டத்தின் ஆரம் r=10cm ஆகில் விட்டம்?", chapter:"வட்டம்", options:["10 cm","20 cm","5 cm","15 cm"], answerText:"20 cm", explanation:"diameter=2r" },
+
+  { sentence:"x + 7 = 12 என்றால் x = ?", chapter:"சமன்பாடு", options:["5","4","3","6"], answerText:"5", explanation:"x=12−7=5" },
+  { sentence:"3x + 2, x=4 இற்கு மதிப்பு?", chapter:"சார்பியல்", options:["14","12","10","16"], answerText:"14", explanation:"3×4+2=14" },
+
+  { sentence:"64 என்பது வர்க்க எண் தானா?", chapter:"வர்க்க எண்கள்", options:["ஆம்","இல்லை","பட்சம்","தெரியாது"], answerText:"ஆம்", explanation:"8×8=64" },
+  { sentence:"9 மற்றும் 12 இன் LCM எது?", chapter:"LCM/HCF", options:["36","24","48","18"], answerText:"36", explanation:"LCM=36" },
+
+  { sentence:"(1/4)+(3/4) = ?", chapter:"பின்ன எண்கள்", options:["1","3/4","1/2","2"], answerText:"1", explanation:"1/4+3/4=1" },
+
+  { sentence:"1532/100 தசம வடிவம்?", chapter:"தசம எண்கள்", options:["15.32","1.532","153.2","1532"], answerText:"15.32", explanation:"1532÷100=15.32" },
+
+  { sentence:"72 என்பது 8×9 எனில் அது எது?", chapter:"எண்கள்", options:["72","89","16","1"], answerText:"72", explanation:"8×9=72" },
+
+  { sentence:"1000 மி.மீ = ? செ.மீ", chapter:"அளவுகள்", options:["1 செ.மீ","10 செ.மீ","0.1 செ.மீ","100 செ.மீ"], answerText:"1 செ.மீ", explanation:"1000 mm = 100 cm" }
 ];
+/* ========================================= */
 
 let student = {};
 let questions = [];
@@ -66,23 +119,54 @@ let currentIndex = 0;
 let current = null;
 let score = 0;
 let timer = null;
+let timeLeft = 60;
 let answers = [];
 
-// ================== START QUIZ ==================
+const TIME_PER_QUESTION = 60;
+
+/* ---------- Better Tamil font: load and embed into jsPDF at runtime ---------- */
+let tamilFontB64 = null;
+async function ensureTamilFontLoaded() {
+  if (tamilFontB64) return;
+  // NotoSansTamil Regular TTF from official googlefonts repo
+  const fontUrl = "https://raw.githubusercontent.com/googlefonts/noto-fonts/main/hinted/ttf/NotoSansTamil/NotoSansTamil-Regular.ttf";
+  const res = await fetch(fontUrl);
+  const buf = await res.arrayBuffer();
+  // Convert ArrayBuffer to Base64
+  const bytes = new Uint8Array(buf);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  tamilFontB64 = btoa(binary);
+}
+
+/* ---------- Utilities ---------- */
+function gradeFromPercent(p) {
+  if (p >= 90) return "A+";
+  if (p >= 80) return "A";
+  if (p >= 70) return "B";
+  if (p >= 60) return "C";
+  if (p >= 50) return "D";
+  return "F";
+}
+
+/* ---------- Quiz flow ---------- */
 function startQuiz() {
-  student.name = document.getElementById("studentName").value.trim();
-  student.class = document.getElementById("studentClass").value.trim();
-  student.school = document.getElementById("studentSchool").value.trim();
-  student.date = document.getElementById("quizDate").value;
+  // collect inputs
+  student.name = (document.getElementById("studentName").value || "").trim();
+  student.class = (document.getElementById("studentClass").value || "").trim();
+  student.school = (document.getElementById("studentSchool").value || "").trim();
+  student.date = (document.getElementById("quizDate").value || "").trim();
 
   if (!student.name || !student.class || !student.school || !student.date) {
-    alert("❗ அனைத்து விவரங்களையும் நிரப்பவும்.");
+    alert("❗ அனைத்தையும் நிரப்பவும் (பெயர், வகுப்பு, பள்ளி, தேதி).");
     return;
   }
 
-  // Pick random 10 questions
-  questions = bank.sort(() => 0.5 - Math.random()).slice(0, 10);
+  // pick 10 random
+  const count = Math.min(10, bank.length);
+  questions = bank.slice().sort(() => 0.5 - Math.random()).slice(0, count);
 
+  // show quiz area
   document.getElementById("infoBox").style.display = "none";
   document.getElementById("quizArea").style.display = "block";
 
@@ -93,79 +177,130 @@ function startQuiz() {
   nextQuestion();
 }
 
-// ================== LOAD QUESTION ==================
 function nextQuestion() {
   clearInterval(timer);
 
-  if (currentIndex >= questions.length) return finishQuiz();
+  if (currentIndex >= questions.length) {
+    finishQuiz();
+    return;
+  }
 
   current = questions[currentIndex];
+  timeLeft = TIME_PER_QUESTION;
 
-  document.getElementById("timer").textContent = "⏱️ நேரம்: 60";
   document.getElementById("scoreboard").textContent = `மதிப்பெண்: ${score} / 10`;
+  document.getElementById("timer").textContent = `⏱️ நேரம்: ${timeLeft}`;
 
-  let quiz = document.getElementById("quiz");
+  const quiz = document.getElementById("quiz");
   quiz.innerHTML = `
     <h3>${currentIndex + 1}. ${current.sentence}</h3>
-    <p><b>அலகு:</b> ${current.chapter}</p>
+    <p class="small"><b>அலகு:</b> ${current.chapter}</p>
     ${current.options.map(o =>
-      `<button class="option-btn" onclick="checkAnswer('${o.replace(/'/g,"\\'")}')">${o}</button>`
+      `<button class="option-btn" onclick="checkAnswer('${o.replace(/'/g, "\\'")}')">${o}</button>`
     ).join("")}
+    <p class="small">கால வரம்பு: ${TIME_PER_QUESTION} வினாடிகள்</p>
   `;
+
+  // start countdown
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = `⏱️ நேரம்: ${timeLeft}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      recordAnswer("நேரம் முடிந்தது", false);
+      alert("⏰ நேரம் முடிந்தது!\nசரியான பதில்: " + current.answerText);
+      currentIndex++;
+      nextQuestion();
+    }
+  }, 1000);
 }
 
-// ================== CHECK ANSWER ==================
 function checkAnswer(option) {
-  const correct = option === current.answerText;
-  if (correct) score++;
+  clearInterval(timer);
+  const wasCorrect = option === current.answerText;
+  if (wasCorrect) score++;
+  recordAnswer(option, wasCorrect);
 
-  answers.push({
-    question: current.sentence,
-    yourAnswer: option,
-    correctAnswer: current.answerText
-  });
-
+  if (wasCorrect) {
+    alert("✅ சரியான பதில்!\nவிளக்கம்: " + current.explanation);
+  } else {
+    alert("❌ தவறு!\nசரியான பதில்: " + current.answerText + "\nவிளக்கம்: " + current.explanation);
+  }
   currentIndex++;
   nextQuestion();
 }
 
-// ================== FINISH QUIZ ==================
+function recordAnswer(selected, correct=false) {
+  answers.push({
+    question: current.sentence,
+    yourAnswer: selected,
+    correctAnswer: current.answerText,
+    isCorrect: correct
+  });
+}
+
 function finishQuiz() {
+  clearInterval(timer);
+
+  const pct = Math.round((score/10)*100);
+  const grade = gradeFromPercent(pct);
+
   document.getElementById("quiz").innerHTML = `
     <h2>🎉 பரீட்சை முடிந்தது!</h2>
     <p>மதிப்பெண்: ${score} / 10</p>
+    <p>சதவீதம்: ${pct}%</p>
+    <p>மதிப்பீடு: ${grade}</p>
+    <p class="small">PDF ஐ பதிவிறக்க கீழே உள்ள பட்டனை அழுத்தவும்.</p>
   `;
+
   document.getElementById("nextBtn").style.display = "none";
   document.getElementById("downloadBtn").style.display = "inline-block";
 }
 
-// ================== PDF (Tamil Font) ==================
-function downloadPDF() {
+/* ---------- PDF (async) with better Tamil font ---------- */
+async function downloadPDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  await ensureTamilFontLoaded(); // fetch & embed font once
 
-  doc.addFont("NotoSansTamil-Black.ttf", "TamilFont", "normal");
-  doc.setFont("TamilFont");
+  const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
 
-  doc.setFontSize(18);
-  doc.text("9ம் வகுப்பு கணித முடிவு", 20, 20);
+  // Register & select the Tamil font
+  doc.addFileToVFS("NotoSansTamil-Regular.ttf", tamilFontB64);
+  doc.addFont("NotoSansTamil-Regular.ttf", "NotoSansTamil", "normal");
+  doc.setFont("NotoSansTamil");
 
-  let y = 40;
-  doc.setFontSize(12);
+  let y = 15;
+  doc.setFontSize(14);
+  doc.text("9ம் வகுப்பு — கணித (10 மதிப்பெண்) முடிவு", 20, y); y += 8;
 
-  answers.forEach((a,i)=>{
-    doc.text(`${i+1}. ${a.question}`, 10, y); y+=6;
-    doc.text(`உங்கள் பதில்: ${a.yourAnswer}`, 12, y); y+=5;
-    doc.text(`சரியான பதில்: ${a.correctAnswer}`, 12, y); y+=8;
+  doc.setFontSize(11);
+  doc.text(`பெயர்: ${student.name}`, 10, y); y += 6;
+  doc.text(`வகுப்பு/பிரிவு: ${student.class}`, 10, y); y += 6;
+  doc.text(`பள்ளி: ${student.school}`, 10, y); y += 6;
+  doc.text(`தேதி: ${student.date}`, 10, y); y += 8;
 
-    if(y > 270){ doc.addPage(); y = 20; }
+  answers.forEach((a, i) => {
+    if (y > 270) { doc.addPage(); doc.setFont("NotoSansTamil"); y = 15; }
+    doc.text(`${i+1}. ${a.question}`, 10, y); y += 6;
+    doc.text(`   உங்கள் பதில்: ${a.yourAnswer}`, 12, y); y += 5;
+    doc.text(`   சரியான பதில்: ${a.correctAnswer}`, 12, y); y += 5;
+    doc.text(`   நிலை: ${a.isCorrect ? "✅ சரி" : "❌ தவறு"}`, 12, y); y += 7;
   });
 
-  doc.save("Maths_Report.pdf");
+  y += 4;
+  const pct = Math.round((score/10)*100);
+  const grade = gradeFromPercent(pct);
+  doc.text(`மொத்த மதிப்பெண்: ${score} / 10`, 10, y); y += 6;
+  doc.text(`சதவீதம்: ${pct}%`, 10, y); y += 6;
+  doc.text(`மதிப்பீடு: ${grade}`, 10, y); y += 6;
+
+  doc.save(`${student.name || 'student'}_Maths_10mark_Report.pdf`);
 }
+
+/* Optional: Preload the Tamil font early so first PDF is instant */
+ensureTamilFontLoaded().catch(()=>{ /* ignore if offline; will retry on download */ });
 </script>
 
 <div class="footer">© 2025 Thiraviya Kumar | Class 9 Tamil Medium Maths Quiz</div>
-
 </body>
 </html>
