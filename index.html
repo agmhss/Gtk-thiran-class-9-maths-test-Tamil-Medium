@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9ம் வகுப்பு — கணித வினா வங்கி (10 மதிப்பெண்)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  body { font-family:"Noto Sans Tamil",sans-serif;background:#f9fafb;padding:20px;color:#222;text-align:center; }
+  h1 { color:#006699;margin-bottom:10px; }
+  .info-box input { padding:8px;margin:5px;border-radius:6px;border:1px solid #aaa;width:80%;max-width:400px; }
+  .card { background:#fff;border-radius:15px;box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:20px;margin:auto;max-width:700px;text-align:left; }
+  button { background:#0084ff;border:none;color:#fff;padding:10px 20px;margin:10px;border-radius:8px;cursor:pointer;font-size:16px; }
+  button:hover { background:#006edc; }
+  .option-btn { display:block;width:100%;margin:8px 0;background:#e0f2ff;color:#111;text-align:left;padding:10px;border-radius:6px;border:1px solid #bde0ff; }
+  .footer { margin-top:15px;color:#555;font-size:14px; }
+  #scoreboard,#timer { font-size:18px;margin-bottom:8px;color:#333; }
+</style>
+</head>
+<body>
+
+<h1>📘 9ம் வகுப்பு கணித வினா பரிசோதனை (10 மதிப்பெண்)</h1>
+
+<!-- Student Info -->
+<div class="info-box" id="infoBox">
+  <h3>மாணவர் விவரங்கள்</h3>
+  <input type="text" id="studentName" placeholder="பெயர்"><br>
+  <input type="text" id="studentClass" placeholder="வகுப்பு மற்றும் பிரிவு (எ.கா., 9A)"><br>
+  <input type="text" id="studentSchool" placeholder="பள்ளி பெயர்"><br>
+  <input type="date" id="quizDate"><br><br>
+  <button onclick="startQuiz()">தொடங்கு ➡️</button>
+</div>
+
+<!-- Quiz Area -->
+<div id="quizArea" style="display:none;">
+  <div id="scoreboard">மதிப்பெண்: 0 / 10</div>
+  <div id="timer">⏱️ நேரம்: 15</div>
+  <div id="quiz" class="card"></div>
+  <button id="nextBtn" onclick="nextQuestion()">அடுத்த வினா ➡️</button>
+  <button id="downloadBtn" style="display:none;" onclick="downloadPDF()">📄 PDF பதிவிறக்க</button>
+  <button id="endBtn" style="display:none;" onclick="endEarly()">🛑 முடிக்க</button>
+</div>
+
+<script>
+// =====================
+// Tamil Maths Question Bank
+// =====================
+const bank = [
+  { sentence:"50000 + 300 + 70 + 5 இன் சுருங்கிய வடிவம்.", chapter:"எண்கள் மற்றும் இடமதிப்பு", options:["53750","50375","53075","57305"], answerText:"50375", explanation:"50000 + 300 + 70 + 5 = 50375." },
+  { sentence:"826 இன் விரிவாக்க வடிவம்?", chapter:"எண்கள் மற்றும் இடமதிப்பு", options:["800 + 20 + 6","820 + 6","80 + 26","8 + 26"], answerText:"800 + 20 + 6", explanation:"826 = 800 + 20 + 6." },
+  { sentence:"45 + 33 = ?", chapter:"கூட்டல்", options:["68","78","76","66"], answerText:"78", explanation:"45 + 33 = 78." },
+  { sentence:"26 − 14 = ?", chapter:"கழித்தல்", options:["10","12","11","14"], answerText:"12", explanation:"26 − 14 = 12." },
+  { sentence:"8 × 2 = ?", chapter:"பெருக்கல்", options:["16","18","14","10"], answerText:"16", explanation:"8 × 2 = 16." },
+  { sentence:"9 × 3 = ?", chapter:"பெருக்கல்", options:["27","21","24","18"], answerText:"27", explanation:"9 × 3 = 27." },
+  { sentence:"7ன் வர்க்க எண் எது?", chapter:"வர்க்க எண்கள்", options:["49","14","7","77"], answerText:"49", explanation:"7 × 7 = 49." },
+  { sentence:"2 மற்றும் 3 இன் LCM எது?", chapter:"மீ.சி.ம", options:["6","5","12","9"], answerText:"6", explanation:"LCM of 2 and 3 is 6." },
+  { sentence:"32 ÷ 4 = ?", chapter:"வகுத்தல்", options:["8","6","9","7"], answerText:"8", explanation:"32 ÷ 4 = 8." },
+  { sentence:"1532 ÷ 100 இன் தசம வடிவம்?", chapter:"தசம எண்கள்", options:["1.532","15.32","153.2","1532"], answerText:"15.32", explanation:"1532 ÷ 100 = 15.32." },
+  { sentence:"1750 மில்லி = ? லிட்டர்", chapter:"அளவுகள்", options:["1.5 லி","1.25 லி","1.75 லி","2 லி"], answerText:"1.75 லி", explanation:"1750 ml = 1.75 L." },
+  { sentence:"10 × 7 செ.மீ ஆன செவ்வகத்தின் சுற்றளவு?", chapter:"நிலவியல்", options:["34 செ.மீ","30 செ.மீ","32 செ.மீ","28 செ.மீ"], answerText:"34 செ.மீ", explanation:"2(l+b)=2(10+7)=34." },
+  { sentence:"முக்கோணத்தின் உள்ளக கோணங்களின் கூட்டுத்தொகை?", chapter:"முக்கோணம்", options:["180°","90°","270°","360°"], answerText:"180°", explanation:"Triangle interior sum=180°." },
+  { sentence:"x + 7 = 12 என்றால் x = ?", chapter:"சமன்பாடு", options:["5","4","3","6"], answerText:"5", explanation:"x = 12 − 7 = 5." },
+  { sentence:"(1/2) × (7/3) = ?", chapter:"பின்ன எண்கள்", options:["7/6","2/5","3/14","14/3"], answerText:"7/6", explanation:"(1×7)/(2×3)=7/6." },
+  { sentence:"99999 மற்றும் 100001 இடைப்பட்ட எண்?", chapter:"எண்களை ஒப்பிடுதல்", options:["99999","100000","100001","100002"], answerText:"100000", explanation:"Between 99999 and 100001." },
+  { sentence:"(−15) × 7 = ?", chapter:"முழு எண்கள்", options:["105","−105","−8","8"], answerText:"−105", explanation:"Negative × Positive = Negative." },
+  { sentence:"மொத்தம் 45, எண்ணிக்கை 9 என்றால் மீன்?", chapter:"புள்ளிவிபரம்", options:["4","5","6","7"], answerText:"5", explanation:"45/9=5." },
+  { sentence:"10 cm ஆரம் கொண்ட வட்டத்தின் விட்டம்?", chapter:"வட்டம்", options:["10 cm","20 cm","5 cm","15 cm"], answerText:"20 cm", explanation:"Diameter = 2 × radius = 20 cm." }
+];
+
+// =============== Logic ===============
+let student = {};
+let questions = [];
+let currentIndex = 0;
+let score = 0;
+let timer = null;
+let timeLeft = 15;
+let answers = [];
+
+function gradeFromPercent(pct){
+  if(pct>=90)return"A+";
+  if(pct>=80)return"A";
+  if(pct>=70)return"B";
+  if(pct>=60)return"C";
+  if(pct>=50)return"D";
+  return"F";
+}
+
+function startQuiz(){
+  student.name=document.getElementById("studentName").value.trim();
+  student.class=document.getElementById("studentClass").value.trim();
+  student.school=document.getElementById("studentSchool").value.trim();
+  student.date=document.getElementById("quizDate").value;
+  if(!student.name||!student.class||!student.school||!student.date){
+    alert("❗ அனைத்து விவரங்களையும் நிரப்பவும்.");return;
+  }
+  questions=bank.sort(()=>0.5-Math.random()).slice(0,10);
+  document.getElementById("infoBox").style.display="none";
+  document.getElementById("quizArea").style.display="block";
+  currentIndex=0;score=0;answers=[];
+  document.getElementById("downloadBtn").style.display="none";
+  document.getElementById("nextBtn").style.display="inline-block";
+  document.getElementById("endBtn").style.display="inline-block";
+  nextQuestion();
+}
+
+function nextQuestion(){
+  clearInterval(timer);
+  if(currentIndex>=questions.length){finishQuiz();return;}
+  const q=questions[currentIndex];timeLeft=15;
+  document.getElementById("timer").textContent="⏱️ நேரம்: "+timeLeft;
+  document.getElementById("scoreboard").textContent="மதிப்பெண்: "+score+" / 10";
+  const quiz=document.getElementById("quiz");
+  quiz.innerHTML=`<h3>${currentIndex+1}. ${q.sentence}</h3>
+  <p><b>அலகு:</b> ${q.chapter}</p>
+  ${q.options.map(o=>`<button class='option-btn' onclick="checkAnswer('${o.replace(/'/g,"\\'")}')">${o}</button>`).join('')}
+  <p style='font-size:13px;color:#666;'>15 வினாடிகளில் பதிலளிக்கவும்</p>`;
+  timer=setInterval(()=>{
+    timeLeft--;
+    document.getElementById("timer").textContent="⏱️ நேரம்: "+timeLeft;
+    if(timeLeft<=0){
+      clearInterval(timer);
+      recordAnswer("நேரம் முடிந்தது",false);
+      alert("⏰ நேரம் முடிந்தது!\nசரியான பதில்: "+q.answerText);
+      currentIndex++;nextQuestion();
+    }
+  },1000);
+}
+
+function checkAnswer(opt){
+  clearInterval(timer);
+  const q=questions[currentIndex];
+  const correct=(opt===q.answerText);
+  if(correct)score++;
+  recordAnswer(opt,correct);
+  alert((correct?"✅ சரியான பதில்!\n":"❌ தவறு!\nசரியான பதில்: "+q.answerText+"\n")+
+        "விளக்கம்: "+q.explanation);
+  currentIndex++;nextQuestion();
+}
+
+function recordAnswer(sel,correct){
+  const q=questions[currentIndex];
+  answers.push({question:q.sentence,yourAnswer:sel,correctAnswer:q.answerText,isCorrect:correct});
+}
+
+function finishQuiz(){
+  clearInterval(timer);
+  const pct=Math.round((score/10)*100);
+  const grade=gradeFromPercent(pct);
+  document.getElementById("quiz").innerHTML=`
+    <h2>🎉 தேர்வு முடிந்தது!</h2>
+    <p>மொத்த மதிப்பெண்: ${score}/10</p>
+    <p>சதவீதம்: ${pct}%</p>
+    <p>மதிப்பீடு: ${grade}</p>`;
+  document.getElementById("nextBtn").style.display="none";
+  document.getElementById("endBtn").style.display="none";
+  document.getElementById("downloadBtn").style.display="inline-block";
+}
+
+function endEarly(){
+  if(confirm("நீங்கள் தேர்வை முடிக்க விரும்புகிறீர்களா?"))finishQuiz();
+}
+
+function downloadPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:"p",unit:"mm",format:"a4"});
+  let y=15;
+  doc.setFontSize(14);
+  doc.text("9ம் வகுப்பு கணித (10 மதிப்பெண்) முடிவு",20,y);
+  y+=8;doc.setFontSize(11);
+  doc.text("பெயர்: "+student.name,10,y);y+=6;
+  doc.text("வகுப்பு/பிரிவு: "+student.class,10,y);y+=6;
+  doc.text("பள்ளி: "+student.school,10,y);y+=6;
+  doc.text("தேதி: "+student.date,10,y);y+=8;
+  answers.forEach((a,i)=>{
+    if(y>270){doc.addPage();y=15;}
+    doc.text((i+1)+". "+a.question,10,y);y+=6;
+    doc.text("   உங்கள் பதில்: "+a.yourAnswer,12,y);y+=5;
+    doc.text("   சரியான பதில்: "+a.correctAnswer,12,y);y+=5;
+    doc.text("   நிலை: "+(a.isCorrect?"✅ சரி":"❌ தவறு"),12,y);y+=7;
+  });
+  const pct=Math.round((score/10)*100);
+  const grade=gradeFromPercent(pct);
+  y+=4;doc.text("மொத்த மதிப்பெண்: "+score+"/10",10,y);y+=6;
+  doc.text("சதவீதம்: "+pct+"%",10,y);y+=6;
+  doc.text("மதிப்பீடு: "+grade,10,y);
+  doc.save(student.name+"_Maths_Quiz_Report.pdf");
+}
+</script>
+
+<div class="footer">© 2025 Thiraviya Kumar | AI Quiz Generator</div>
+</body>
+  </html>
