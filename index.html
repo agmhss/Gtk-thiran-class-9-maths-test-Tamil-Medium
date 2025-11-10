@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>9ம் வகுப்பு — கணித வினா வங்கி (10 மதிப்பெண்)</title>
+<title>9ம் வகுப்பு — திறன் கணித வினா வங்கி (10 மதிப்பெண்)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -33,7 +33,7 @@
 
 <div id="quizArea" style="display:none;">
   <div id="scoreboard">மதிப்பெண்: 0 / 10</div>
-  <div id="timer">⏱️ நேரம்: 30</div>
+  <div id="timer">⏱️ நேரம்: 60</div>
   <div id="quiz" class="card"></div>
 
   <div style="margin-top:8px;">
@@ -171,7 +171,7 @@ function finishQuiz(){
   const pct=Math.round((score/10)*100);
   const grade=gradeFromPercent(pct);
   document.getElementById("quiz").innerHTML=`
-    <h2>🎉 பரீட்சை முடிந்தது!</h2>
+    <h2>🎉 தேர்வு முடிந்தது!</h2>
     <p>மதிப்பெண்: ${score} / 10</p>
     <p>சதவீதம்: ${pct}%</p>
     <p>மதிப்பீடு: ${grade}</p>`;
@@ -189,6 +189,6 @@ function gradeFromPercent(p){
 }
 </script>
 
-<div class="footer">© 2025 Thiraviya Kumar | Class 9 Tamil Medium Maths Quiz</div>
+<div class="footer">© 2025 G Thiraviya Kumar| Class 9 THIRAN Tamil Medium Maths Quiz</div>
 </body>
 </html>
